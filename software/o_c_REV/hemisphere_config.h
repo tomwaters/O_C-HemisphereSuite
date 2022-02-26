@@ -41,7 +41,6 @@
     DECLARE_APPLET( 21, 0x01, LowerRenz), \
     DECLARE_APPLET( 50, 0x04, Metronome), \
     DECLARE_APPLET(150, 0x20, hMIDIIn), \
-    DECLARE_APPLET( 27, 0x20, hMIDIOut), \
     DECLARE_APPLET( 33, 0x10, MixerBal), \
     DECLARE_APPLET( 20, 0x02, Palimpsest), \
     DECLARE_APPLET( 44, 0x01, RunglBook), \
@@ -54,6 +53,7 @@
     DECLARE_APPLET( 36, 0x04, Shuffle), \
     DECLARE_APPLET(  7, 0x01, SkewedLFO), \
     DECLARE_APPLET( 19, 0x01, Slew), \
+    DECLARE_APPLET( 57, 0x02, Spirals), \
     DECLARE_APPLET( 46, 0x08, Squanch), \
     DECLARE_APPLET(  3, 0x10, Switch), \
     DECLARE_APPLET( 13, 0x40, TLNeuron), \
@@ -68,3 +68,4 @@
     DECLARE_APPLET( 43, 0x10, Voltage), \
 }
 /*    DECLARE_APPLET(127, 0x80, DIAGNOSTIC), \ */
+/*      DECLARE_APPLET( 27, 0x20, hMIDIOut), \*/

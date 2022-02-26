@@ -1,4 +1,4 @@
-// Copyright (c) 2018, Jason Justian
+/*// Copyright (c) 2018, Jason Justian
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -322,4 +322,4 @@ uint32_t hMIDIOut_OnDataRequest(bool hemisphere) {
 
 void hMIDIOut_OnDataReceive(bool hemisphere, uint32_t data) {
     hMIDIOut_instance[hemisphere].OnDataReceive(data);
-}
+}*/
