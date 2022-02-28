@@ -18,19 +18,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "braids_quantizer_scales.h"
-#include "braids_quantizer.h"
-#include "bjorklund.h"
-
 #define MAX_STEPS 32
 #define MAX_RESTS 8
 
-const int cursor_pos[5][3] = {
-    {13, 23, 25},   //scale
-    {38, 33, 25},   // rotation
-    {56, 43, 6},    // rests
-    {1, 53, 8},     // lock icon
-    {50, 53, 12}    // lock steps
+const int cursor_pos[6][3] = {
+    {13, 23, 25},   // scale
+    {50, 33, 12},   // root
+    {38, 43, 25},   // rotation
+    {56, 53, 6},    // rests
+    {1, 63, 8},     // lock icon
+    {50, 63, 12}    // lock steps
 };
 
 class Spirals : public HemisphereApplet {
@@ -63,6 +60,9 @@ public:
 
         if(Clock(1)) {
             ToggleLock();
+            // reset rotation??
+            //r = 0 - rotation;
+            //lock_read = 0;
         }
 
         rotation = setting_rotation + (DetentedIn(0) * (0.5 / HEMISPHERE_MAX_CV));
@@ -74,7 +74,7 @@ public:
     }
 
     void OnButtonPress() {
-        if (++cur_setting > 4) cur_setting = 0;
+        if (++cur_setting > 5) cur_setting = 0;
     }
 
     void OnEncoderMove(int direction) {
@@ -83,15 +83,18 @@ public:
             if (scale_idx >= OC::Scales::NUM_SCALES) scale_idx = 0;
             if (scale_idx < 0) scale_idx = OC::Scales::NUM_SCALES - 1;
             BuildNotes();
-        } else if(cur_setting == 1) { // Rotation selection
+        } else if(cur_setting == 1) { // Root selection
+            root = constrain(root + direction, 0, 11);
+            BuildNotes();
+        } else if(cur_setting == 2) { // Rotation selection
             setting_rotation = constrain(setting_rotation + (0.01 * direction), 0.0, 1.0);
             rotation = setting_rotation;
-        } else if(cur_setting == 2) { // Rests
+        } else if(cur_setting == 3) { // Rests
             num_rests = constrain(num_rests + direction, 0, MAX_RESTS);
             BuildNotes();
-        } else if(cur_setting == 3) { // Locked
+        } else if(cur_setting == 4) { // Locked
             ToggleLock();
-        } else if(cur_setting == 4) { // Lock Steps
+        } else if(cur_setting == 5) { // Lock Steps
             lock_steps = constrain(lock_steps + direction, 0, MAX_STEPS);
         }
     }
@@ -111,7 +114,7 @@ public:
 protected:
     void SetHelp() {
         //                               "------------------" <-- Size Guide
-        help[HEMISPHERE_HELP_DIGITALS] = "Clk 1=BPM 2=Lock";
+        help[HEMISPHERE_HELP_DIGITALS] = "Clk 1=BPM 2=Reset";
         help[HEMISPHERE_HELP_CVS]      = "1=ROT 2=CV2";
         help[HEMISPHERE_HELP_OUTS]     = "A=CV1 B=TRIG1";
         help[HEMISPHERE_HELP_ENCODER]  = "T=Value P=Setting";
@@ -125,6 +128,7 @@ private:
     double setting_rotation;
     double r;
 
+    uint8_t root;
     int notes[32];
     int num_notes;
     int num_rests;
@@ -165,7 +169,7 @@ private:
             r = fmod(r + rotation * num_notes, num_notes);
             
             steps[lock_write] = r / num_notes;
-            if(++lock_write > MAX_STEPS) lock_write = 0;
+            if(++lock_write >= MAX_STEPS) lock_write = 0;
 
             return notes[(int)r];
         }
@@ -182,7 +186,7 @@ private:
             if(euc & 1) {
                 notes[i] = -1;
             } else {
-                notes[i] = scale.notes[n];
+                notes[i] = (root << 7) + scale.notes[n];
                 n++;
             }
             euc = euc >> 1;
@@ -206,18 +210,21 @@ private:
         gfxBitmap(1, 15, 8, SCALE_ICON);
         gfxPrint(12, 16, OC::scale_names_short[scale_idx]);
 
-        gfxPrint(1, 24, "ROT: ");
-        gfxPos(30, 24);
+        gfxPrint(1, 24, "ROOT: ");
+        gfxPrint(50, 24, OC::Strings::note_names_unpadded[root]);
+
+        gfxPrint(1, 34, "ROT: ");
+        gfxPos(30, 34);
         gfxPrintDouble(rotation);
         
-        gfxPrint(1, 34, "RESTS: ");
-        gfxPrint(56, 34, num_rests);
+        gfxPrint(1, 44, "RESTS: ");
+        gfxPrint(56, 44, num_rests);
 
-        if(locked) gfxBitmap(1, 44, 8, CHECK_ON_ICON);
-        if(!locked) gfxBitmap(1, 44, 8, CHECK_OFF_ICON);
+        if(locked) gfxBitmap(1, 54, 8, CHECK_ON_ICON);
+        if(!locked) gfxBitmap(1, 54, 8, CHECK_OFF_ICON);
 
-        gfxPrint(12, 44, "LOCK: ");
-        gfxPrint(50, 44, lock_steps);
+        gfxPrint(12, 54, "LOCK: ");
+        gfxPrint(50, 54, lock_steps);
 
         gfxCursor(cursor_pos[cur_setting][0], cursor_pos[cur_setting][1], cursor_pos[cur_setting][2]);
     }
