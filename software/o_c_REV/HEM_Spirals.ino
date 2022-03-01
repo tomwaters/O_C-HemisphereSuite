@@ -66,6 +66,15 @@ public:
         }
 
         rotation = setting_rotation + (DetentedIn(0) * (0.5 / HEMISPHERE_MAX_CV));
+
+        if(Changed(1)) {
+            uint8_t quantized = rootQuantizer.Process(In(1)) % 12;
+            if(root != quantized) {
+                root = quantized;
+                BuildNotes();
+            }
+        }
+
     }
 
     void View() {
@@ -114,9 +123,9 @@ public:
 protected:
     void SetHelp() {
         //                               "------------------" <-- Size Guide
-        help[HEMISPHERE_HELP_DIGITALS] = "Clk 1=BPM 2=Reset";
-        help[HEMISPHERE_HELP_CVS]      = "1=ROT 2=CV2";
-        help[HEMISPHERE_HELP_OUTS]     = "A=CV1 B=TRIG1";
+        help[HEMISPHERE_HELP_DIGITALS] = "Clk 1=BPM 2=LOCK";
+        help[HEMISPHERE_HELP_CVS]      = "1=ROT 2=ROOT";
+        help[HEMISPHERE_HELP_OUTS]     = "A=CV B=TRIG";
         help[HEMISPHERE_HELP_ENCODER]  = "T=Value P=Setting";
         //                               "------------------" <-- Size Guide
     }
@@ -129,6 +138,8 @@ private:
     double r;
 
     uint8_t root;
+    OC::SemitoneQuantizer rootQuantizer;
+
     int notes[32];
     int num_notes;
     int num_rests;
