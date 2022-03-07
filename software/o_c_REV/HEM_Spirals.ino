@@ -67,7 +67,7 @@ public:
 
         rotation = setting_rotation + (DetentedIn(0) * (0.5 / HEMISPHERE_MAX_CV));
 
-        if(Changed(1)) {
+        if(Changed(1) && In(1) >= 0) {
             uint8_t quantized = rootQuantizer.Process(In(1)) % 12;
             if(root != quantized) {
                 root = quantized;
